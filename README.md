@@ -1,7 +1,5 @@
 <div align="center">
 
-<!-- ═══════════════ PIPELINE SHOWCASE (FIRST THING ON THE PAGE) ═══════════════ -->
-<img src="https://raw.githubusercontent.com/MohammedAhmed-01/TelcoPulseCluster/main/Document/TelcoPulse_showcase.gif" alt="TelcoPulse pipeline showcase" width="100%"/>
 
 <br/>
 
@@ -25,9 +23,11 @@
 
 <br/>
 
-**[Overview](#-overview) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [Dataset](#-dataset) · [Batch Pipeline](#-batch-pipeline) · [Streaming Pipeline](#-streaming-pipeline) · [ClickHouse](#-clickhouse-serving-layer) · [Dashboards](#-dashboards) · [Quick Start](#-quick-start) · [Author](#-author)**
+**[Overview](#-overview) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [Dataset](#-dataset) · [Batch Pipeline](#-batch-pipeline) · [Streaming Pipeline](#-streaming-pipeline) · [ClickHouse](#-clickhouse-serving-layer) · [Dashboards](#-dashboards) · [Quick Start](#-quick-start)**
 
 </div>
+<!-- ═══════════════ PIPELINE SHOWCASE (FIRST THING ON THE PAGE) ═══════════════ -->
+<img src="https://raw.githubusercontent.com/MohammedAhmed-01/TelcoPulseCluster/main/Document/TelcoPulse_showcase.gif" alt="TelcoPulse pipeline showcase" width="100%"/>
 
 ---
 
