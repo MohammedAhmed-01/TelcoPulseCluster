@@ -1,0 +1,19 @@
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+. G:\TelcoPulse\env.ps1
+
+docker run --rm -p 7080:7080 -p 7081:7081 -p 4040:4040 -v "${JOBS}:/jobs" telcopulse-spark-s3a:3.5.9 /opt/spark/bin/spark-submit @conf /jobs/ingest_raw.py Dataset_01_NR_1800.csv Dataset_02_LTE_1800.csv Dataset_02_NR_2100.csv Dataset_03_GSM_900.csv Dataset_03_LTE_1800.csv Dataset_03_LTE_700.csv Dataset_03_LTE_800.csv Dataset_03_NR_2100.csv Dataset_03_NR_3500.csv > G:\TelcoPulse\jobs\ingest_out.txt 2>&1
+Select-String -Path G:\TelcoPulse\jobs\ingest_out.txt -Pattern "^INGEST"
+
+
+
+docker run --rm -p 7080:7080 -p 7081:7081 -p 4040:4040 -v "${JOBS}:/jobs" telcopulse-spark-s3a:3.5.9 /opt/spark/bin/spark-submit @conf /jobs/clean_curate.py all > G:\TelcoPulse\jobs\clean_out.txt 2>&1
+Select-String -Path G:\TelcoPulse\jobs\clean_out.txt -Pattern "^(CHECK|CLEAN|DONE)|FetchFailed|OutOfMemory|NoSuchBucket|Path does not exist"
+Select-String -Path G:\TelcoPulse\jobs\clean_out.txt -Pattern "^(CHECK|CLEAN|DONE)"
+
+
+
+
+
+docker run --rm -p 7080:7080 -p 7081:7081 -p 4040:4040 -v "${JOBS}:/jobs" telcopulse-spark-s3a:3.5.9 /opt/spark/bin/spark-submit @conf /jobs/show_curated.py > G:\TelcoPulse\jobs\show_out.txt 2>&1
+Select-String -Path G:\TelcoPulse\jobs\show_out.txt -Pattern "^SHOW|^\||^\+-"
+
