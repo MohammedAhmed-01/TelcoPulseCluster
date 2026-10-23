@@ -39,7 +39,7 @@
 
 <br/>
 
-**[Overview](#overview) · [Results](#results) · [Architecture](#architecture) · [Network](#network) · [Spark](#spark) · [Data Lake](#datalake) · [Dataset](#dataset) · [Batch](#batch) · [Streaming](#streaming) · [Anomalies](#anomalies) · [ClickHouse](#clickhouse) · [Dashboards](#dashboards) · [Status](#status) · [Quick Start](#quickstart) · [Troubleshooting](#troubleshooting) · [Roadmap](#roadmap) · [Team](#team)**
+**[Overview](#overview) · [Results](#results) · [Architecture](#architecture) · [Network](#network) · [Spark](#spark) · [Data Lake](#datalake) · [Dataset](#dataset) · [Batch](#batch) · [Streaming](#streaming) · [Anomalies](#anomalies) · [ClickHouse](#clickhouse) · [Dashboards](#dashboards) · [Quick Start](#quickstart) · [Troubleshooting](#troubleshooting) · [Roadmap](#roadmap) · [Team](#team)**
 
 </div>
 
@@ -232,7 +232,7 @@ The repository is the source of truth. Where the original design and the as-buil
 
 <a id="network"></a>
 <div align="center">
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=14,17,24&height=70&section=header&text=Network%20%26%20Infrastructure&fontSize=34&fontColor=ffffff&animation=scaleIn&fontAlignY=52" width="100%" alt="Network and Infrastructure"/>
+<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=12,20,24&height=70&section=header&text=Network%20and%20Infrastructure&fontSize=34&fontColor=ffffff&animation=scaleIn&fontAlignY=52" width="100%" alt="Network and Infrastructure"/>
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&pause=900&color=34D399&center=true&vCenter=true&width=860&height=28&lines=A+distributed+system+is+only+as+reliable+as+its+network;Router+%E2%86%92+six+laptops+%E2%86%92+Docker+Desktop+%E2%86%92+containers" alt="typing"/>
 </div>
 
@@ -674,30 +674,7 @@ Apache Superset (`superset-node5`, port `8088`, SQLite metadata DB) reaches Clic
 
 <br/>
 
-<a id="status"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=2,7,11&height=70&section=header&text=Project%20Status&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=52" width="100%" alt="Project Status"/>
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&pause=900&color=4ADE80&center=true&vCenter=true&width=860&height=28&lines=An+honest+status+board%3A+what+works%2C+what+is+partial%2C+what+is+next" alt="typing"/>
-</div>
 
-| Area | Status | Notes |
-|---|:-:|---|
-| Six-laptop network, Docker + WSL 2 | ✅ | Fixed addresses `.11`–`.16` via reservations |
-| Spark cluster (Master + Workers) | ✅ | Custom `telcopulse-spark-s3a:3.5.9` image |
-| RustFS data lake | ✅ | `raw`, `processed`, `curated` buckets |
-| Batch: ingest + clean + curate | 🟨 | **9 of 10** files; `Dataset_03_NR_3500` to re-run |
-| Batch → ClickHouse loader | 🔲 | Not implemented — `kpi_batch` stays empty |
-| Kafka + synthetic generator | ✅ | Topic `telecom_stream`, 10 events/s |
-| Stream consumer + 4 anomaly rules | 🟨 | Inserts need the schema alignment above |
-| ClickHouse schema | ✅ | Five tables; `quality_report` / `benchmark_runs` not populated |
-| Superset | 🟨 | Container + driver ready; dashboards not provisioned |
-| Benchmarks | 🔲 | No measurements recorded yet |
-
-<div align="center">
-
-✅ done &nbsp;·&nbsp; 🟨 partial &nbsp;·&nbsp; 🔲 planned
-
-</div>
 
 ### 🧪 Validation checklist
 
@@ -903,55 +880,15 @@ A complete **project book** accompanies this repository: [`Document/TelcoPulse_C
 
 <br/>
 
-<a id="roadmap"></a>
-<div align="center">
-<img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=8,14,20&height=70&section=header&text=Limitations%20%26%20Roadmap&fontSize=34&fontColor=ffffff&animation=scaleIn&fontAlignY=52" width="100%" alt="Limitations and Roadmap"/>
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=16&pause=900&color=C084FC&center=true&vCenter=true&width=860&height=28&lines=A+convincing+teaching+platform%2C+not+a+production+system;Close+the+gaps%2C+then+say+so+plainly" alt="typing"/>
-</div>
 
-### ⚠️ Limitations
 
-Being explicit about scope is part of the engineering:
-
-| Area | Current state |
-|---|---|
-| **High availability** | Single Kafka broker (replication factor 1), single Spark master, single ClickHouse node — a node failure interrupts that service; no failover tested |
-| **Batch completeness** | `Dataset_03_NR_3500` not curated, so NR rows and the total are understated |
-| **Duplicates** | Kept and reported — each Dataset_02 file holds 1,078,375 surplus rows; flag or remove before aggregating |
-| **Anomaly detection** | Rule-based thresholds only (4 rules); no statistical or ML detector yet |
-| **Streaming source** | Synthetic generator, not live network telemetry — results are not real-network measurements |
-| **Stream processor** | Plain Python consumer (not Spark Structured Streaming); one HTTP insert per row; inserts need the schema alignment above |
-| **Batch → ClickHouse** | Curated Parquet is not yet loaded into `kpi_batch` by an automated job |
-| **Quality / benchmark tables** | Exist in the schema but are not populated automatically yet |
-| **Dashboards** | Specified, but the provisioning script is empty |
-| **Network** | Home-lab router with mixed Wi-Fi / Ethernet — not representative of a wired data-centre fabric |
-| **Security** | Lab credentials, plain HTTP, no TLS, no authentication on internal services |
-
-### 🧭 Roadmap (priority order)
-
-- [ ] **P1** — Process `Dataset_03_NR_3500` and re-run profiling
-- [ ] **P1** — Align the stream processor with the ClickHouse DDL
-- [ ] **P1** — Remove secrets from files and rotate every committed value
-- [ ] **P2** — Pin all container image versions
-- [ ] **P3** — Bake the ClickHouse driver into a custom Superset image
-- [ ] **P4** — Batch the stream inserts
-- [ ] **P5** — Curated → `kpi_batch` loader · Superset provisioning script · sanitised `env.ps1` · populate `quality_report` and `benchmark_runs`
-- [ ] **P6** — Flag Dataset_02 duplicates and report file counts with every total
-- [ ] **P7** — TLS and authentication for Kafka, RustFS and ClickHouse
-- [ ] **P8** — Multi-broker Kafka, multi-master Spark and database redundancy
-- [ ] Spark Structured Streaming variant of the stream processor
-- [ ] Statistical / ML anomaly detection (rolling z-score, 3σ) alongside the threshold rules
-- [ ] Monitoring (Prometheus + Grafana) and alerting (email / webhook) on `critical` anomalies
-- [ ] Orchestration with Airflow *(cut from the original ten-day scope)*
-
-<br/>
 
 <a id="conclusion"></a>
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=rect&color=gradient&customColorList=2,12,24&height=70&section=header&text=Conclusion&fontSize=34&fontColor=ffffff&animation=fadeIn&fontAlignY=52" width="100%" alt="Conclusion"/>
 </div>
 
-TelcoPulse shows that a realistic telecom analytics platform can be built end to end on ordinary hardware: **31.9 million curated records** from 2G, 4G and 5G networks flow through a Spark-based lakehouse on S3-compatible storage, while a simulated live feed passes through Kafka toward ClickHouse with rule-based anomaly detection, ready for Apache Superset. The project also exposes the practical side of distributed systems — fixed addressing, listener configuration, S3A connectivity and cross-node networking. Its limits (no high availability, rule-based detection only, a few unfinished links between layers) are documented above and drive the roadmap.
+TelcoPulse shows that a realistic telecom analytics platform can be built end to end on ordinary hardware: **31.9 million curated records** from 2G, 4G and 5G networks flow through a Spark-based lakehouse on S3-compatible storage, while a simulated live feed passes through Kafka toward ClickHouse with rule-based anomaly detection, ready for Apache Superset. The project also exposes the practical side of distributed systems — fixed addressing, listener configuration, S3A connectivity and cross-node networking. Its remaining gaps (no high availability, rule-based detection only, a few unfinished links between layers) are tracked in the roadmap.
 
 <br/>
 
@@ -969,7 +906,7 @@ TelcoPulse shows that a realistic telecom analytics platform can be built end to
 
 | 👤 | 👤 | 👤 | 👤 | 👤 |
 |:-:|:-:|:-:|:-:|:-:|
-| **Mahmoud Saleh** | **Ali Tharwat** | **Youssef ElToor** | **Mohamed Saleh** | **Basel Tarek** |
+| **Mahmoud Saleh** | **Ali Tharwat** | **Youssef ElToor** | **Mohammed Salah** | **Basel Tarek** |
 
 | | |
 |---|---|
