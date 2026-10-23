@@ -556,9 +556,9 @@ TelcoPulse shows that a realistic telecom analytics platform can be built end to
 
 | Role | Name | Lab laptop |
 |---|---|---|
-| Member | **Mahmoud Saleh** | |
-| Member | **Ali Tharwat** | |
-| Member | **Yossef El-Toor** | |
+| Member | **Mahmoud Saleh** | `192.168.1.11` · Spark Master |
+| Member | **Ali Tharwat** | `192.168.1.15` · ClickHouse + Superset |
+| Member | **Yossef ElToor** | `192.168.1.16` & `192.168.1.14` ·  | Spark Workers |
 | Member | **Mohamed Saleh** | `192.168.1.13` · Kafka broker + Kafka UI |
 | Member | **Basel Tarek** | `192.168.1.12` · RustFS object storage |
 
@@ -567,7 +567,7 @@ TelcoPulse shows that a realistic telecom analytics platform can be built end to
 | **Training** | Huawei HCIA Big Data · National Telecommunication Institute (NTI) |
 | **Presented to** | Eng. Ahmed Hassan |
 | **Project period** | October 2026 |
-| **Repository** | [github.com/MohammedAhmed-01/TelcoPulseCluster](https://github.com/MohammedAhmed-01/TelcoPulseCluster) |
+| **GitHub** | [github.com/MohammedAhmed-01/TelcoPulseCluster](https://github.com/MohammedAhmed-01/TelcoPulseCluster) |
 
 <div align="center">
 
