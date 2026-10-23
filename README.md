@@ -555,7 +555,7 @@ TelcoPulse shows that a realistic telecom analytics platform can be built end to
 ## 👥 Team
 
 | Role | Name |
-|---|---|---|
+|---|---|
 | Member | **Mahmoud Saleh** |
 | Member | **Ali Tharwat** | 
 | Member | **Youssef ElToor** | 
