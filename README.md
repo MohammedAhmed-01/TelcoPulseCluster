@@ -117,9 +117,9 @@ flowchart LR
 | Node | Role | Services | Key Ports |
 |---|---|---|:-:|
 | `192.168.1.11` | **Compute** | Spark Master (+ workers / driver) | `7077` `8080` `7078` `7079` |
+| `192.168.1.12` | **Object store** | RustFS (S3-compatible) | `9000` API · `9001` console |
 | `192.168.1.13` | **Messaging** | Kafka broker (KRaft) + Kafka UI | `9092` `8080` |
 | `192.168.1.15` | **Serving** | ClickHouse + Superset | `8123` `9000` `8088` |
-| `192.168.1.12` | **Object store** | RustFS (S3-compatible) | `9000` API · `9001` console |
 | `192.168.1.14` | **Compute** | Spark Worker | `8081` |
 | `192.168.1.16` | **Compute** | Spark Worker | `8081` |
 
