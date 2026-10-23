@@ -120,6 +120,8 @@ flowchart LR
 | `192.168.1.13` | **Messaging** | Kafka broker (KRaft) + Kafka UI | `9092` `8080` |
 | `192.168.1.15` | **Serving** | ClickHouse + Superset | `8123` `9000` `8088` |
 | `192.168.1.12` | **Object store** | RustFS (S3-compatible) | `9000` API · `9001` console |
+| `192.168.1.14` | **Compute** | Spark Worker | `8081` |
+| `192.168.1.16` | **Compute** | Spark Worker | `8081` |
 
 > [!NOTE]
 > IPs above are the private LAN addresses used in this lab. Change them in `spark-defaults.conf`, the Kafka `ADVERTISED_LISTENERS`, and the Python connection constants to match your network.
