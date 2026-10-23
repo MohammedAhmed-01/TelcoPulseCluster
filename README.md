@@ -554,13 +554,13 @@ TelcoPulse shows that a realistic telecom analytics platform can be built end to
 
 ## 👥 Team
 
-| Role | Name | Lab laptop |
+| Role | Name |
 |---|---|---|
-| Member | **Mahmoud Saleh** | `192.168.1.11` · Spark Master |
-| Member | **Ali Tharwat** | `192.168.1.15` · ClickHouse + Superset |
-| Member | **Yossef ElToor** | `192.168.1.16` & `192.168.1.14` ·  Spark Workers |
-| Member | **Mohamed Saleh** | `192.168.1.13` · Kafka broker + Kafka UI |
-| Member | **Basel Tarek** | `192.168.1.12` · RustFS object storage |
+| Member | **Mahmoud Saleh** |
+| Member | **Ali Tharwat** | 
+| Member | **Youssef ElToor** | 
+| Member | **Mohamed Saleh** |
+| Member | **Basel Tarek** | 
 
 | | |
 |---|---|
