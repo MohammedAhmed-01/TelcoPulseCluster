@@ -1,6 +1,5 @@
 <div align="center">
 
-
 <br/>
 
 <!-- Animated wave header -->
@@ -23,10 +22,11 @@
 
 <br/>
 
-**[Overview](#-overview) · [Architecture](#-architecture) · [Tech Stack](#-tech-stack) · [Dataset](#-dataset) · [Batch Pipeline](#-batch-pipeline) · [Streaming Pipeline](#-streaming-pipeline) · [ClickHouse](#-clickhouse-serving-layer) · [Dashboards](#-dashboards) · [Quick Start](#-quick-start)**
+**[Overview](#-overview) · [Results](#-results-at-a-glance) · [Architecture](#-architecture) · [Network](#-network-setup) · [Tech Stack](#-tech-stack) · [Dataset](#-dataset) · [Batch](#-batch-pipeline) · [Streaming](#-streaming-pipeline) · [ClickHouse](#-clickhouse-serving-layer) · [Dashboards](#-dashboards) · [Quick Start](#-quick-start) · [Limitations](#-limitations) · [Team](#-team)**
 
 </div>
-<!-- ═══════════════ PIPELINE SHOWCASE (FIRST THING ON THE PAGE) ═══════════════ -->
+
+<!-- ═══════════════ PIPELINE SHOWCASE ═══════════════ -->
 <img src="https://raw.githubusercontent.com/MohammedAhmed-01/TelcoPulseCluster/main/Document/TelcoPulse_showcase.gif" alt="TelcoPulse pipeline showcase" width="100%"/>
 
 ---
@@ -35,7 +35,15 @@
 
 **TelcoPulse** is an end-to-end data engineering platform for **Radio Access Network (RAN) analytics**. It ingests historical 5G / 4G / 2G performance-management counters in batch **and** simulates a live telemetry feed, then serves both through a single analytical store with operational dashboards and automated anomaly detection.
 
-The whole stack runs on a **multi-machine home-lab cluster** (Spark master, Kafka broker, and ClickHouse/Superset on separate nodes), which makes it a realistic playground for distributed-systems problems: networking, listener configuration, S3A connectivity, and cross-node data movement.
+The whole stack runs on a **six-laptop home-lab cluster** connected through a local router (Spark master, Kafka broker, ClickHouse/Superset and object storage on separate nodes). That makes it a realistic playground for distributed-systems problems: networking, listener configuration, S3A connectivity, and cross-node data movement.
+
+| | |
+|---|---|
+| 🎓 **Context** | Huawei HCIA Big Data training · National Telecommunication Institute (NTI) |
+| 👨‍🏫 **Presented to** | Eng. Ahmed Hassan |
+| 🖥 **Infrastructure** | 6 physical Windows laptops · Docker Desktop (WSL 2) · one local router |
+| 📡 **Domain** | 2G / 4G / 5G RAN performance telemetry |
+| 📚 **Documentation** | A complete project book accompanies this repository (see [Documentation](#-documentation)) |
 
 ### ✨ Highlights
 
@@ -48,6 +56,28 @@ The whole stack runs on a **multi-machine home-lab cluster** (Spark master, Kafk
 | 🗄️ | **Columnar serving layer** | ClickHouse `MergeTree` tables, partitioned and ordered for fast time-series queries |
 | 📊 | **One-command analytics stack** | `setup.sh` boots ClickHouse + Superset and provisions the ops dashboard |
 | ✅ | **Built-in data quality checks** | Null / non-numeric / timestamp / duplicate-key audits with row-count reconciliation |
+
+---
+
+## 📈 Results at a Glance
+
+Recorded from the batch curation run (`show_curated.py` output):
+
+| Metric | Value |
+|---|--:|
+| Source files | **10** CSV files |
+| Radio technologies | **3** (2G GSM · 4G LTE · 5G NR) |
+| 🟦 LTE rows (curated) | **18,750,012** |
+| 🟪 NR rows (curated) | **7,558,148** |
+| 🟩 GSM rows (curated) | **5,595,932** |
+| **Total curated rows** | **31,904,092** |
+| Distinct base stations | **279** |
+| Time range | `2023-03-03 08:30:00` → `2025-11-22 23:30:00` |
+| Cluster | **6** laptops · 1 router |
+| Stream rate (simulator) | **10 events / second** across 4 sites / 21 cells |
+
+> [!NOTE]
+> The earlier all-in-one job (`batch_all_10.py`) writes a different, intermediate *Processed* dataset (`telcopulse_batch_v1`). Its row count is **not** comparable to the Curated totals above, because Curated is produced per file by `clean_curate.py`.
 
 ---
 
@@ -78,7 +108,7 @@ flowchart LR
     CSV --> RAW
     GEN --> KAFKA
     SP --> CH
-    CUR -. "load to kpi_batch" .-> CH
+    CUR -. "load to kpi_batch (planned)" .-> CH
     CH --> SS
 ```
 
@@ -93,6 +123,23 @@ flowchart LR
 
 > [!NOTE]
 > IPs above are the private LAN addresses used in this lab. Change them in `spark-defaults.conf`, the Kafka `ADVERTISED_LISTENERS`, and the Python connection constants to match your network.
+
+---
+
+## 🌐 Network Setup
+
+Every service address is hard-coded in configuration (Spark master URL, S3A endpoint, Kafka advertised listener, ClickHouse URL). If a laptop received a new IP after a reboot, the cluster would break. The lab therefore uses a **DHCP reservation** on the router:
+
+| Step | What to do |
+|:-:|---|
+| 1 | Connect all laptops to the same router (Wi-Fi or Ethernet). The lab used a Huawei **HG531 V1** (Vodafone ADSL) router at `192.168.1.1`, subnet `255.255.255.0`. |
+| 2 | On each laptop run `getmac /v` and note the MAC of the adapter that is actually connected (ignore VMware / Bluetooth adapters). |
+| 3 | In the router: **Basic → LAN → DHCP → IP Address Reserve → New**. Enter the MAC (use `:` separators) and the fixed IP. |
+| 4 | Reserve one address per laptop in the range `192.168.1.11 – 192.168.1.16`, then press **Submit**. |
+| 5 | Reconnect each laptop and verify with `ipconfig`, `ping` and `Test-NetConnection -Port <port>`. |
+
+> [!TIP]
+> If a laptop does not get its reserved address, check that Windows "random hardware addresses" is off for the Wi-Fi network and that the MAC belongs to the adapter that is really in use. Step-by-step screenshots are in the project book.
 
 ---
 
@@ -335,9 +382,6 @@ TelcoPulseCluster/
 │   └── spark/
 │       ├── Dockerfile                 # Spark 3.5.9 + S3A jars
 │       └── batch_all_10.py            # single-pass batch job
-├── 📁 config/
-│   ├── spark-defaults.conf            # Spark networking / ports
-│   └── rustfs.env                     # storage credentials (git-ignored!)
 ├── 📁 jobs/
 │   ├── ingest_raw.py                  # CSV  → Parquet (ingested)
 │   ├── clean_curate.py                # audit + typed, curated Parquet
@@ -353,6 +397,8 @@ TelcoPulseCluster/
 │   ├── superset_config.py
 │   └── provision_dashboard.py
 ├── docker-compose.yml                 # ClickHouse + Superset (+ Kafka sim)
+├── spark-defaults.conf                # Spark networking / ports
+├── rustfs.env                         # storage credentials (lab values: do NOT reuse)
 └── setup.sh                           # one-command analytics bootstrap
 ```
 
@@ -366,6 +412,7 @@ TelcoPulseCluster/
 - Python 3.10+ (`pip install kafka-python numpy requests`)
 - PowerShell (Windows) for the Spark job commands, Bash for `setup.sh`
 - Datasets uploaded to the `raw` bucket
+- Fixed LAN addresses for each node (see [Network Setup](#-network-setup))
 
 ### 1. Start the object store (RustFS)
 
@@ -454,10 +501,33 @@ Watch it live: **Kafka UI** → `http://<kafka-host>:8080` · **Superset** → `
 | Emit interval / window | `generator.py` | `0.10 s` / `300 s` |
 | ClickHouse HTTP endpoint | `stream_processor.py` → `CLICKHOUSE_URL` | `http://192.168.1.15:8123/` |
 | Kafka listeners | `kafka-cluster/docker-compose.yml` | `INTERNAL :29092` · `EXTERNAL :9092` · `CONTROLLER :9093` |
-| Credentials & secrets | `rustfs.env`, compose files, `CH_AUTH` | ⚠️ use env vars / `.env` — **never commit** |
+| Credentials & secrets | `rustfs.env`, compose files, `CH_AUTH` | ⚠️ lab values only — use env vars / `.env` for anything else |
 
 > [!WARNING]
-> Keep real access keys, database passwords, and `SUPERSET_SECRET_KEY` out of version control. Add `config/rustfs.env` and any `.env` files to `.gitignore`.
+> The credentials in this repository are **lab-only values** for an isolated local network. Never reuse them. For any other deployment, move access keys, database passwords and `SUPERSET_SECRET_KEY` into environment variables or an untracked `.env` file, and add those files to `.gitignore`.
+
+---
+
+## 📚 Documentation
+
+A complete **project book** (architecture, router and network setup with screenshots, every pipeline, ClickHouse schemas, dashboards, testing, troubleshooting and operations runbooks) accompanies this repository: `Document/TelcoPulse_Complete_Project_Book.docx`.
+
+---
+
+## ⚠️ Limitations
+
+Being explicit about scope is part of the engineering:
+
+| Area | Current state |
+|---|---|
+| **High availability** | Single Kafka broker (replication factor 1), single Spark master, single ClickHouse node. A node failure interrupts the affected service; no failover has been tested. |
+| **Anomaly detection** | Rule-based thresholds only (4 rules). No statistical or machine-learning detector yet. |
+| **Streaming source** | Synthetic generator, not live network telemetry. Stream results must not be read as real-network measurements. |
+| **Stream processor** | Plain Python consumer, not Spark Structured Streaming. |
+| **Batch → ClickHouse** | Curated Parquet is not yet loaded into `kpi_batch` by an automated job (see roadmap). |
+| **Quality / benchmark tables** | `quality_report` and `benchmark_runs` exist in the schema but are not populated automatically yet. |
+| **Network** | Home-lab router with mixed Wi-Fi / Ethernet. Throughput and latency are not representative of a wired data-centre fabric. |
+| **Security** | Lab credentials, plain HTTP, no TLS, no authentication on internal services. |
 
 ---
 
@@ -467,8 +537,36 @@ Watch it live: **Kafka UI** → `http://<kafka-host>:8080` · **Superset** → `
 - [ ] Spark Structured Streaming variant of the stream processor
 - [ ] Statistical / ML anomaly detection alongside the threshold rules
 - [ ] Populate `quality_report` and `benchmark_runs` automatically from the pipeline
+- [ ] Multi-broker Kafka and multi-master Spark for high availability
+- [ ] Monitoring (Prometheus + Grafana)
 - [ ] Orchestration with Airflow
 - [ ] Alerting (email / webhook) on `critical` anomalies
 
 ---
 
+## ✅ Conclusion
+
+TelcoPulse shows that a realistic telecom analytics platform can be built end to end on ordinary hardware: **31.9 million curated records** from 2G, 4G and 5G networks flow through a Spark-based lakehouse on S3-compatible storage, while a simulated live feed passes through Kafka into ClickHouse with rule-based anomaly detection, all visualised in Apache Superset. The project also exposes the practical side of distributed systems: fixed addressing, listener configuration, S3A connectivity and cross-node networking. Its main limits (no high availability, rule-based detection only) are documented above and drive the roadmap.
+
+---
+
+## 👥 Team
+
+| Role | Name |
+|---|---|
+| Member | **Mahmoud Saleh** |
+| Member | **Ali Tharwat** |
+| Member | **Yossef El-Toor** |
+
+| | |
+|---|---|
+| **Training** | Huawei HCIA Big Data · National Telecommunication Institute (NTI) |
+| **Presented to** | Eng. Ahmed Hassan |
+| **Project period** | October 2026 |
+| **Repository** | [github.com/MohammedAhmed-01/TelcoPulseCluster](https://github.com/MohammedAhmed-01/TelcoPulseCluster) |
+
+<div align="center">
+
+*TelcoPulse · Batch + Real-Time Telecom RAN Analytics Platform · Built for the Huawei HCIA Big Data programme at NTI*
+
+</div>
